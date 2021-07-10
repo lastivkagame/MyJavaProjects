@@ -1,7 +1,3 @@
 ﻿Протестувати другу домашку із використанням двох різних серверів БД.
 Наприклад MySQL та MSSQL Server.
 Спробувати зробити сідер для даних.
-
-(LocalDb)\MSSQLLocalDB
-(LocalDb)\MSSQLLocalDB
-localhost
