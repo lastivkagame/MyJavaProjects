@@ -18,6 +18,29 @@ nav{
   align-items: center;
   list-style: none;
 }
+
+.my-card{
+  padding: 20px;
+}
+
+.long-text{
+  overflow: scroll;
+height: 15vh;
+scroll-behavior: auto;
+}
+
+#img-card{
+  height: 15vh;
+  width: auto;
+}
+
+img{
+  width: auto;
+}
+
+.up-marg{
+  margin-top: 5vh;
+}
 /* 
 .App-logo {
   height: 40vmin;
