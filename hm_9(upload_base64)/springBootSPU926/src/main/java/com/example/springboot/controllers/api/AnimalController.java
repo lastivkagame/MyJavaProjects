@@ -1,7 +1,12 @@
 package com.example.springboot.controllers.api;
 
 import com.example.springboot.entities.Animal;
+import com.example.springboot.entities.AnimalImage;
+import com.example.springboot.repositories.AnimalImageRepository;
 import com.example.springboot.repositories.AnimalRepository;
+import com.example.springboot.response.CommonResponse;
+import com.example.springboot.services.AnimalService;
+import com.example.springboot.wrappers.AnimalImageWrapper;
 import com.sun.org.apache.xpath.internal.objects.XString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,15 +16,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+//import com.example.juniorprogrammer.apicrud.response.CommonResponse;
 
 @RestController
 @RequestMapping("/api")
 public class AnimalController {
     private final AnimalRepository animalRepository;
+    private final AnimalImageRepository animalImageRepository;
+    //private final AnimalService animalService;
 
     @Autowired
-    public AnimalController(AnimalRepository animalRepository) {
+    public AnimalController(AnimalRepository animalRepository, AnimalImageRepository animalImageRepository) {
         this.animalRepository = animalRepository;
+        this.animalImageRepository = animalImageRepository;
     }
 
     //https://www.bezkoder.com/spring-boot-jpa-crud-rest-api/
@@ -64,7 +73,7 @@ public class AnimalController {
     public ResponseEntity<Animal> createAnimal(@RequestBody Animal animal) {
         try {
             Animal _animal = animalRepository
-                    .save(new Animal(animal.getName(), animal.getImage()));
+                    .save(new Animal(animal.getName()));
             return new ResponseEntity<>(_animal, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -78,7 +87,7 @@ public class AnimalController {
         if (animalData.isPresent()) {
             Animal _animal = animalData.get();
             _animal.setName(animal.getName());
-            _animal.setImage(animal.getImage());
+            //_animal.setImage(animal.getImage());
             return new ResponseEntity<>(animalRepository.save(_animal), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -117,6 +126,50 @@ public class AnimalController {
             return new ResponseEntity<>(animals, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/upload-animal")
+    public ResponseEntity<AnimalImageWrapper> upload(@RequestBody AnimalImageWrapper param){
+        try{
+            AnimalImage animalImage = new AnimalImage();
+            animalImage.setAnimal(animalRepository.findById(param.getAnimalId()).get());
+            animalImage.setContentType(param.getContentType());
+            animalImage.setBase64(param.getBase64());
+            animalImageRepository.save(animalImage);
+            return new ResponseEntity<>(param, HttpStatus.OK);
+        }
+        catch (Exception e){
+            return null;
+        }
+    }
+
+    @GetMapping("/animals-images/{id}")
+    public ResponseEntity<AnimalImage> getAnimalImageById(@PathVariable("id") int id) {
+        Optional<AnimalImage> animalsData = animalImageRepository.findById(id);
+
+        if (animalsData.isPresent()) {
+            return new ResponseEntity<>(animalsData.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/animals-images")
+    public ResponseEntity<List<AnimalImage>> getAllAnimalsImages() {
+        try {
+            List<AnimalImage> animals = new ArrayList<AnimalImage>();
+
+            animalImageRepository.findAll().forEach(animals::add);
+
+
+            if (animals.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(animals, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
